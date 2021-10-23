@@ -1,27 +1,23 @@
 #!/bin/bash
 
-function time_to_sec {
-  sec=${1:6}
-  min=${1:3:2}
-  hour=${1:0:2}
-  echo $(echo "$sec+$min*60+$hour*3600" | bc)
-}
+let id=0
+for pid in `ps -aux | awk '{print $2}' | tail -n +2 | head -n +5`; do
+  cmdline=`cat "/proc/$pid/cmdline"`
+  bytes=`cat "/proc/$pid/io" | grep -E "read_bytes:.+" | awk '{print $2}'`
+  processes[$id]="$pid:$cmdline:$bytes"
+  (( id++ ))
+done
+sleep 1m
 
-str_start=$(date '+%H:%M:%S.%N')
-start=$(time_to_sec $str_start)
-today=$(date '+%Y-%m-%d')
+let id=0
+for process in ${processes[@]}; do
+  pid=`echo $process | awk -F ":" '{print $1}'`
+  cmdline=`echo $process | awk -F ":" '{print $2}'`
+  bytes=`echo $process | awk -F ":" '{print $3}'`
+  cur_bytes=`cat "/proc/$pid/io" | grep -E "read_bytes:.+" | awk '{print $2}'`
+  let bytes_per_min=$cur_bytes-$bytes
+  processes[$id]="$pid:$cmdline:$bytes_per_min"
+  (( id++ ))
+done
 
-for pid in `ps -aux | awk '{print $2}' | tail -n +2 | head -n -5`; do
-  str_time=$(stat "/proc/"$pid | grep -E -s -h "Modify" | grep -E -s -h $today | awk '{print $3}')
-  if [[ $str_time == "" ]]; then
-    continue
-  fi
-  
-  sec_time=$(time_to_sec $str_time)
-  cmp=$(echo $start-$sec_time | bc)
-  
-  if [[ $(bc -l <<< "$cmp>1") -ne 1 ]]; then
-    bytes=$(grep -E -s -h "read_bytes" "/proc/$pid/io" | grep -E -s -o "[0-9]+")
-	echo $pid $bytes
-  fi
-done | sort -n -k 2 | tail -n 3 | awk '{print $1":"$2}'
+echo "${processes[*]}" | sort -k 3 | tail -n 3 | awk '{print $1"\n"$2"\n"$3}'

@@ -22,10 +22,10 @@ let id=1
 # NF - Number of Fields
 while read line; do
   tmp=$(echo "$line" | awk -F ":" '{print $1}' | awk -F "/" '{print $NF}')
-  tmp=$(echo "$tmp" | rev | cur -c 2- | rev)
+  tmp=$(echo "$tmp" | rev | cut -c 2- | rev)
   if [[ -n "$line" && "$tmp" = "$1" ]]; then
     resultFirst[id]=$(echo "$line" | awk -F ":" '{print $1}')
-	resultSecond[id]=$(echo "$line" | awk -F ":" '{print $2}')
+	resultSecond[id]=$(echo "$line" | awk -F ":" '{print $2}' | cut -c 2-)
 	echo "$id. ${resultFirst[id]}"
 	resultFirst[id]=$(dirname $(echo "${resultFirst[id]}"))
 	(( id++ ))
@@ -42,6 +42,11 @@ if [[ $num -lt 1 || $num -gt id ]]; then
 fi
 
 if ! [ -d "${resultFirst[num]}" ]; then
+  echo -e "\nThe directory of the file now is not reachable -> restoring into home directory"
+  resultFirst[num]="$HOME"
+fi
+
+if [ -f "${resultFirst[num]}/$1" ]; then
   echo -e "\nFile with the same name already exists in provided directory. Please, provide new name for file"
   read newName
   resultFirst[num]="${resultFirst[num]}/$newName"
@@ -50,6 +55,6 @@ else
 fi
 
 echo "${resultSecond[num]}"
-ln ${resultSecond[num]} "${resultFirst[num]}"
-rm ${resultSecond[num]}
+ln "${resultSecond[num]}" "${resultFirst[num]}"
+rm "${resultSecond[num]}"
 echo "File successfully untrashed"

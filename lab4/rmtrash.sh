@@ -13,6 +13,6 @@ if ! [ -d "$trashFolder" ]; then
   mkdir "trashFolder"
 fi
 
-echo "$file : $trashFolder/$timestamp-Deleted" >> "$trashLog"
+echo "$file /// $trashFolder/$timestamp-Deleted" >> "$trashLog"
 ln "$file" "$trashFolder/$timestamp-Deleted"
 rm "$file"

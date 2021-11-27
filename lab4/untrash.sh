@@ -21,11 +21,11 @@ let id=1
 
 # NF - Number of Fields
 while read line; do
-  tmp=$(echo "$line" | awk -F ":" '{print $1}' | awk -F "/" '{print $NF}')
+  tmp=$(echo "$line" | awk -F "///" '{print $1}' | awk -F "/" '{print $NF}')
   tmp=$(echo "$tmp" | rev | cut -c 2- | rev)
   if [[ -n "$line" && "$tmp" = "$1" ]]; then
-    resultFirst[id]=$(echo "$line" | awk -F ":" '{print $1}')
-	resultSecond[id]=$(echo "$line" | awk -F ":" '{print $2}' | cut -c 2-)
+    resultFirst[id]=$(echo "$line" | awk -F "///" '{print $1}')
+	resultSecond[id]=$(echo "$line" | awk -F "///" '{print $2}' | cut -c 2-)
 	echo "$id. ${resultFirst[id]}"
 	resultFirst[id]=$(dirname $(echo "${resultFirst[id]}"))
 	(( id++ ))

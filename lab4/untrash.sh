@@ -27,7 +27,7 @@ while read line; do
     resultFirst[id]=$(echo "$line" | awk -F "///" '{print $1}')
 	resultSecond[id]=$(echo "$line" | awk -F "///" '{print $2}' | cut -c 2-)
 	echo "$id. ${resultFirst[id]}"
-	resultFirst[id]=$(dirname $(echo "${resultFirst[id]}"))
+	resultFirst[id]=$(dirname $(echo "${resultFirst[id]}") | head -1)
 	(( id++ ))
   fi
 done < $trashLog

@@ -1,0 +1,4 @@
+  Disk 0    Online          476 GB      0 B        *
+  Disk 1    Online          931 GB      0 B        *
+
+Microsoft Windows [Version 10.0.19041.1415]
